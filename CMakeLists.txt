@@ -8,11 +8,3 @@ ADD_DEFINITIONS("-pedantic -Ofast -fomit-frame-pointer -std=c++11 -mavx2 -msse4 
 ADD_LIBRARY(KFAST STATIC
 	KFAST.cpp
 )
-
-ADD_EXECUTABLE(KFAST_TEST
-	main.cpp
-)
-
-FIND_PACKAGE(OpenCV REQUIRED)
-
-TARGET_LINK_LIBRARIES(KFAST_TEST KFAST ${OpenCV_LIBS})
