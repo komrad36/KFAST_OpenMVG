@@ -49,12 +49,12 @@ int main(int argc, char* argv[]) {
 
 	std::vector<Keypoint> my_keypoints;
 	// warmup
-	for (int i = 0; i < warmups; ++i) KFAST<nonmax_suppression>(image.data, image.cols, image.rows, image.cols, my_keypoints, thresh);
+	for (int i = 0; i < warmups; ++i) KFAST(image.data, image.cols, image.rows, image.cols, my_keypoints, thresh, nonmax_suppression);
 	my_keypoints.clear();
 	{
 		high_resolution_clock::time_point start = high_resolution_clock::now();
 		for (int32_t i = 0; i < Kruns; ++i) {
-			KFAST<nonmax_suppression>(image.data, image.cols, image.rows, image.cols, my_keypoints, thresh);
+			KFAST(image.data, image.cols, image.rows, image.cols, my_keypoints, thresh, nonmax_suppression);
 		}
 		high_resolution_clock::time_point end = high_resolution_clock::now();
 		nanoseconds sum = (end - start) / Kruns;
