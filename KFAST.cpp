@@ -24,7 +24,7 @@
 //
 
 #include "KFAST.h"
-
+#include <cstring>
 // Yes, this function MUST be inlined.
 // Even if your compiler thinks otherwise.
 // 2000 -> 2600 microseconds without forced inlining.
