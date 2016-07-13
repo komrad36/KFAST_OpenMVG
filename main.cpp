@@ -8,6 +8,20 @@
 *
 *	Last updated Jul 11, 2016
 *******************************************************************/
+//
+// Implementation of the FAST corner feature detector with optional
+// non-maximal suppression, as described in the 2006 paper by
+// Rosten and Drummond:
+// "Machine learning for high-speed corner detection"
+//         Edward Rosten and Tom Drummond
+// https://www.edwardrosten.com/work/rosten_2006_machine.pdf
+//
+// My implementation uses AVX2, as well as many other careful
+// optimizations, to implement the FAST algorithm as described
+// in the paper but at great speed. This implementation
+// outperforms the reference implementation by 40-60%
+// while matching its output and capabilities.
+//
 
 #include <chrono>
 #include <iostream>
@@ -21,7 +35,6 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
-using namespace std::literals;
 using namespace std::chrono;
 
 void printReport(const std::string& name, const nanoseconds& dur, size_t num_keypoints) {
@@ -47,7 +60,7 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	std::vector<Keypoint> my_keypoints;
+	std::vector<openMVG::features::SIOPointFeature> my_keypoints;
 	// warmup
 	for (int i = 0; i < warmups; ++i) KFAST(image.data, image.cols, image.rows, image.cols, my_keypoints, thresh, nonmax_suppression);
 	my_keypoints.clear();
@@ -96,7 +109,7 @@ int main(int argc, char* argv[]) {
 
 		cv::Mat image3;
 		std::vector<cv::KeyPoint> converted_kps;
-		for (const auto& kp : my_keypoints) converted_kps.emplace_back(static_cast<float>(kp.x), static_cast<float>(kp.y), 0.0f, 0.0f, static_cast<float>(kp.score));
+		for (const auto& kp : my_keypoints) converted_kps.emplace_back(static_cast<float>(kp.x), static_cast<float>(kp.y), 0.0f, 0.0f, 0.0f);
 
 		cv::drawKeypoints(image, converted_kps, image3, cv::Scalar(255.0, 0.0, 0.0));
 		cv::namedWindow("KFAST", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);

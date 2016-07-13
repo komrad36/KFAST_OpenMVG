@@ -8,6 +8,20 @@
 *
 *	Last updated Jul 11, 2016
 *******************************************************************/
+//
+// Implementation of the FAST corner feature detector with optional
+// non-maximal suppression, as described in the 2006 paper by
+// Rosten and Drummond:
+// "Machine learning for high-speed corner detection"
+//         Edward Rosten and Tom Drummond
+// https://www.edwardrosten.com/work/rosten_2006_machine.pdf
+//
+// My implementation uses AVX2, as well as many other careful
+// optimizations, to implement the FAST algorithm as described
+// in the paper but at great speed. This implementation
+// outperforms the reference implementation by 40-60%
+// while matching its output and capabilities.
+//
 
 #include "KFAST.h"
 
@@ -23,7 +37,7 @@ inline
 void processCols(int32_t& num_corners, const uint8_t* __restrict & ptr, int32_t& j,
 	const int32_t* const __restrict offsets, const __m256i& ushft, const __m256i& t, const int32_t cols,
 	const __m256i& consec, int32_t* const __restrict corners, uint8_t* const __restrict cur,
-	std::vector<Keypoint>& keypoints, const int32_t i) {
+	std::vector<openMVG::features::SIOPointFeature>& keypoints, const int32_t i) {
 	// ppt is an integer vector that now holds 32 of point p
 	__m256i ppt = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(ptr));
 
@@ -239,7 +253,7 @@ void processCols(int32_t& num_corners, const uint8_t* __restrict & ptr, int32_t&
 
 			}
 			else {
-				keypoints.emplace_back(j + k, i, 0);
+				keypoints.emplace_back(static_cast<float>(j + k), static_cast<float>(i), 7.0f, 0.0f);
 			}
 		}
 	}
@@ -252,7 +266,7 @@ __forceinline
 inline
 #endif
 void KFAST_internal(const uint8_t* __restrict const data, const int32_t cols, const int32_t rows, const int32_t stride,
-	std::vector<Keypoint>& keypoints, const uint8_t threshold) {
+	std::vector<openMVG::features::SIOPointFeature>& keypoints, const uint8_t threshold) {
 	keypoints.clear();
 	keypoints.reserve(8500);
 
@@ -362,7 +376,7 @@ void KFAST_internal(const uint8_t* __restrict const data, const int32_t cols, co
 						cur[j - 1], cur[j], cur[j + 1],
 						last2[j - 1], last2[j], last2[j + 1],
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), ushft)))) == 0xFF) {
-					keypoints.emplace_back(j, i - 1, score);
+					keypoints.emplace_back(static_cast<float>(j), static_cast<float>(i - 1), 7.0f, 0.0f);
 				}
 			}
 		}
@@ -372,7 +386,7 @@ void KFAST_internal(const uint8_t* __restrict const data, const int32_t cols, co
 }
 
 void KFAST(const uint8_t* __restrict const data, const int32_t cols, const int32_t rows, const int32_t stride,
-	std::vector<Keypoint>& keypoints, const uint8_t threshold, const bool nonmax_suppression) {
+	std::vector<openMVG::features::SIOPointFeature>& keypoints, const uint8_t threshold, const bool nonmax_suppression) {
 	if (nonmax_suppression) {
 		KFAST_internal<true>(data, cols, rows, stride, keypoints, threshold);
 	}
