@@ -5,6 +5,8 @@ SET(KFAST_VERSION_MINOR 0)
 
 ADD_DEFINITIONS("-pedantic -Ofast -fomit-frame-pointer -std=c++11 -mavx2 -msse4 -march=native -mfma -flto")
 
-ADD_LIBRARY(KFAST STATIC
+ADD_LIBRARY(fast STATIC
 	KFAST.cpp
 )
+
+INSTALL(TARGETS fast DESTINATION lib EXPORT openMVG-targets)
