@@ -291,7 +291,7 @@ void KFAST_internal(const uint8_t* __restrict const data, const int32_t cols, co
 	uint8_t* rowbuf[3];
 	int32_t* cornerbuf[3];
 	if (nonmax_suppression) {
-		// allocate enough buffer for 3 rows of uin8_t and then 3 rows of int32_t
+		// allocate enough buffer for 3 rows of uint8_t and then 3 rows of int32_t
 		rawbuf = reinterpret_cast<uint8_t*>(_mm_malloc(cols * 3 * (sizeof(int32_t) + sizeof(uint8_t)) + 4 * sizeof(int32_t), 4096));
 
 		// each rowbuf entry is a pointer to a uint8_t row buffer
