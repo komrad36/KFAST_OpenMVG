@@ -30,7 +30,7 @@
 #include <immintrin.h>
 #include <vector>
 
-#include "feature.hpp"
+#include "openMVG/features/feature.hpp"
 
 void KFAST(const uint8_t* __restrict const data, const int32_t cols, const int32_t rows, const int32_t stride,
 	std::vector<openMVG::features::SIOPointFeature>& keypoints, const uint8_t threshold, const bool nonmax_suppression);
